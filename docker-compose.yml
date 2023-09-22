@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+
+  # Web Server Service
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "1011:80"
+    volumes:
+      - ./src/survey-app:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - app
+      - db
+
+  #Database Service
+  db:
+    image : mysql:latest
+    container_name : mysql
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: survey_app
+      MYSQL_ROOT_PASSWORD: root
+  # db:
+  #   image: postgres
+  #   container_name: postgres
+  #   volumes:
+  #     - ./postgresql/data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   environment: 
+  #     POSTGRES_DB: blog
+  #     POSTGRES_USER: root 
+  #     POSTGRES_PASSWORD: password 
+
+  # Application Service
+  app:
+    container_name: app
+    build: 
+      context: ./php
+      dockerfile: Dockerfile
+    volumes:
+      - ./src/survey-app:/var/www
+    ports:
+      - "9000:9000"
+    working_dir: /var/www
+
+  #phpMyAdmin Service
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "1002:80"
+    depends_on:
+      - db
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgAdmin
+  #   ports:
+  #     - "5050:80"
+  #   depends_on:
+  #     - db 
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: hanieasemi76@gmail.com
+  #     PGADMIN_DEFAULT_PASSWORD: password 
